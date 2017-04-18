@@ -268,7 +268,11 @@ public class AvroData {
     });
   }
 
-  private Cache<Schema, org.apache.avro.Schema> fromConnectSchemaCache;
+  // Key is an object. Two cases are allowed:
+  //   1. instance of Schema when the Schema does not have (a name and a version)
+  //   2. instance of String otherwise
+  // The second variant (String) is preferred as it is more efficient with huge schema (the hashCode is not computed in cascade)
+  private Cache<Object, org.apache.avro.Schema> fromConnectSchemaCache;
   private Cache<org.apache.avro.Schema, Schema> toConnectSchemaCache;
   private boolean connectMetaData;
   private boolean enhancedSchemaSupport;
@@ -609,7 +613,13 @@ public class AvroData {
       return ANYTHING_SCHEMA;
     }
 
-    org.apache.avro.Schema cached = fromConnectSchemaCache.get(schema);
+    Object cacheKey;
+    if (schema.name() != null && schema.version() != null) {
+      cacheKey = schema.name() + "---" + schema.version();
+    } else {
+      cacheKey = schema;
+    }
+    org.apache.avro.Schema cached = fromConnectSchemaCache.get(cacheKey);
 
     if (cached == null && !AVRO_TYPE_UNION.equals(schema.name()) && !schema.isOptional()) {
       cached = schemaMap.get(schema.name());
@@ -811,7 +821,7 @@ public class AvroData {
     if (schema.name() != null && !schema.isOptional()) {
       schemaMap.put(schema.name(), finalSchema);
     }
-    fromConnectSchemaCache.put(schema, finalSchema);
+    fromConnectSchemaCache.put(cacheKey, finalSchema);
     return finalSchema;
   }
 
