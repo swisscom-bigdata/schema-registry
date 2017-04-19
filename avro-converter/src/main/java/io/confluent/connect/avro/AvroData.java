@@ -268,17 +268,8 @@ public class AvroData {
     });
   }
 
-  // Key is an object. Two cases are allowed:
-  //   1. instance of Schema when the Schema does not have (a name and a version)
-  //   2. instance of String otherwise
-  // The second variant (String) is preferred as it is more efficient with huge schema (the hashCode is not computed in cascade)
-  private Cache<Object, org.apache.avro.Schema> fromConnectSchemaCache;
-
-  // Key is an object. Two cases are allowed:
-  //   1. instance of org.apache.avro.Schema when the Schema does not have (a name and a version)
-  //   2. instance of String otherwise
-  // The second variant (String) is preferred as it is more efficient with huge schema (the hashCode is not computed in cascade)
-  private Cache<Object, Schema> toConnectSchemaCache;
+  private Cache<KafkaConnectSchemaContainer, org.apache.avro.Schema> fromConnectSchemaCache;
+  private Cache<AvroSchemaContainer, Schema> toConnectSchemaCache;
 
   private boolean connectMetaData;
   private boolean enhancedSchemaSupport;
@@ -619,12 +610,7 @@ public class AvroData {
       return ANYTHING_SCHEMA;
     }
 
-    Object cacheKey;
-    if (schema.name() != null && schema.version() != null) {
-      cacheKey = schema.name() + "---" + schema.version();
-    } else {
-      cacheKey = schema;
-    }
+    KafkaConnectSchemaContainer cacheKey = new KafkaConnectSchemaContainer(schema);
     org.apache.avro.Schema cached = fromConnectSchemaCache.get(cacheKey);
 
     if (cached == null && !AVRO_TYPE_UNION.equals(schema.name()) && !schema.isOptional()) {
@@ -1176,13 +1162,7 @@ public class AvroData {
     // conversions take extra flags (like forceOptional) which means the resulting schema might not
     // exactly match the Avro schema.
 
-    Object cacheKey;
-    if (schema.getType() != null && schema.getType().getName() != null && schema.getName() != null && schema.getDoc() != null) {
-      cacheKey = schema.getType().getName() + "---" + schema.getName() + "---" + schema.getDoc(); // TODO not sure it's efficient !! It could create a lot of collisions in maps if the value is always the same
-      System.out.println("AvroData#toConnectSchema : cackeKey = " + cacheKey);
-    } else {
-      cacheKey = schema;
-    }
+    AvroSchemaContainer cacheKey = new AvroSchemaContainer(schema);
     Schema cachedSchema = toConnectSchemaCache.get(cacheKey);
     if (cachedSchema != null) {
       return cachedSchema;
