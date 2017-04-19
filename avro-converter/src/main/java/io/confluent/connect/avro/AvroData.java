@@ -1178,7 +1178,7 @@ public class AvroData {
 
     Object cacheKey;
     if (schema.getNamespace() != null && schema.getName() != null && schema.getDoc() != null) {
-      cacheKey = schema.getNamespace() + "---" + schema.getName() + "---" + schema.getDoc(); // TODO not sure it's efficient !! It could create a lot of collisions in maps if the value is always the same
+      cacheKey = schema.getType().getName() + "---" + schema.getName() + "---" + schema.getDoc(); // TODO not sure it's efficient !! It could create a lot of collisions in maps if the value is always the same
       System.out.println("AvroData#toConnectSchema : cackeKey = " + cacheKey);
     } else {
       cacheKey = schema;
