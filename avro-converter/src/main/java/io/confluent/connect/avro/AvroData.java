@@ -273,7 +273,13 @@ public class AvroData {
   //   2. instance of String otherwise
   // The second variant (String) is preferred as it is more efficient with huge schema (the hashCode is not computed in cascade)
   private Cache<Object, org.apache.avro.Schema> fromConnectSchemaCache;
-  private Cache<org.apache.avro.Schema, Schema> toConnectSchemaCache;
+
+  // Key is an object. Two cases are allowed:
+  //   1. instance of org.apache.avro.Schema when the Schema does not have (a name and a version)
+  //   2. instance of String otherwise
+  // The second variant (String) is preferred as it is more efficient with huge schema (the hashCode is not computed in cascade)
+  private Cache<Object, Schema> toConnectSchemaCache;
+
   private boolean connectMetaData;
   private boolean enhancedSchemaSupport;
 
@@ -1169,13 +1175,21 @@ public class AvroData {
     // the internal conversions, this is the safest place to add caching since some of the internal
     // conversions take extra flags (like forceOptional) which means the resulting schema might not
     // exactly match the Avro schema.
-    Schema cachedSchema = toConnectSchemaCache.get(schema);
+
+    Object cacheKey;
+    if (schema.getNamespace() != null && schema.getName() != null && schema.getDoc() != null) {
+      cacheKey = schema.getNamespace() + "---" + schema.getName() + "---" + schema.getDoc(); // TODO not sure it's efficient !! It could create a lot of collisions in maps if the value is always the same
+      System.out.println("AvroData#toConnectSchema : cackeKey = " + cacheKey);
+    } else {
+      cacheKey = schema;
+    }
+    Schema cachedSchema = toConnectSchemaCache.get(cacheKey);
     if (cachedSchema != null) {
       return cachedSchema;
     }
 
     Schema resultSchema = toConnectSchema(schema, false, null, null);
-    toConnectSchemaCache.put(schema, resultSchema);
+    toConnectSchemaCache.put(cacheKey, resultSchema);
     return resultSchema;
   }
 
