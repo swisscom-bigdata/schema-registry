@@ -3,6 +3,8 @@ package io.confluent.connect.avro;
 
 import org.apache.kafka.connect.data.Schema;
 
+import java.util.Objects;
+
 public class KafkaConnectSchemaContainer {
 
     private Schema schema;
@@ -19,7 +21,17 @@ public class KafkaConnectSchemaContainer {
 
         KafkaConnectSchemaContainer that = (KafkaConnectSchemaContainer) o;
 
-        return schema.name().equals(that.schema.name()) && schema.version().equals(that.schema.version()); // to schema are identical when their name and version equal.
+        String name1 = schema.name();
+        String name2 = that.schema.name();
+        Integer version1 = schema.version();
+        Integer version2 = that.schema.version();
+
+        if (name1 != null && name2 != null && version1 != null && version2 != null) {
+            return Objects.equals(schema.name(), that.schema.name()) &&
+                    Objects.equals(schema.version(), that.schema.version()); // to schema are identical when their name and version equal.
+        }
+
+        return schema.equals(that.schema);
     }
 
     @Override
