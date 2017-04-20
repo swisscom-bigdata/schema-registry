@@ -26,12 +26,6 @@ public class KafkaConnectSchemaContainer {
         Integer version1 = schema.version();
         Integer version2 = that.schema.version();
 
-        try { // TODO remove these lines !
-            System.out.println("Comparison of KafkaConnectSchemaContainer (name1=" + name1 + ", version1=" + version1 + ", name2=" + name2 + ", version2=" + version2 + ")");
-        } catch (RuntimeException e) {
-            System.out.println("Caught exception in KafkaConnectSchemaContainer: " + e.getMessage());
-        }
-
         if (name1 != null && name2 != null && version1 != null && version2 != null) {
             return Objects.equals(schema.name(), that.schema.name()) &&
                     Objects.equals(schema.version(), that.schema.version()); // to schema are identical when their name and version equal.
