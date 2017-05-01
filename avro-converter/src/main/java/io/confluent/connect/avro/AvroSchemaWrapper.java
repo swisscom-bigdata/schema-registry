@@ -2,11 +2,13 @@ package io.confluent.connect.avro;
 
 import org.apache.avro.Schema;
 
-public class AvroSchemaContainer {
+import java.util.Objects;
+
+public class AvroSchemaWrapper {
 
     private Schema schema;
 
-    public AvroSchemaContainer(Schema schema) {
+    public AvroSchemaWrapper(Schema schema) {
         assert (schema != null);
         this.schema = schema;
     }
@@ -16,22 +18,14 @@ public class AvroSchemaContainer {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        AvroSchemaContainer that = (AvroSchemaContainer) o;
+        AvroSchemaWrapper that = (AvroSchemaWrapper) o;
 
         return schema.equals(that.schema); // costly operation when the schemas are huge
     }
 
     @Override
     public int hashCode() {
-        Schema.Type type = schema.getType();
-        String name = schema.getName();
-        String doc = schema.getDoc();
-
-        int result = (type != null ? type.hashCode() : 0);
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (doc != null ? doc.hashCode() : 0);
-
-        return result;
+        return Objects.hash(schema.getType(), schema.getName(), schema.getDoc());
     }
 
     public Schema getSchema() {

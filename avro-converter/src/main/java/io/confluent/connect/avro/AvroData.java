@@ -268,8 +268,8 @@ public class AvroData {
     });
   }
 
-  private Cache<KafkaConnectSchemaContainer, org.apache.avro.Schema> fromConnectSchemaCache;
-  private Cache<AvroSchemaContainer, Schema> toConnectSchemaCache;
+  private Cache<KafkaConnectSchemaWrapper, org.apache.avro.Schema> fromConnectSchemaCache;
+  private Cache<AvroSchemaWrapper, Schema> toConnectSchemaCache;
 
   private boolean connectMetaData;
   private boolean enhancedSchemaSupport;
@@ -610,7 +610,7 @@ public class AvroData {
       return ANYTHING_SCHEMA;
     }
 
-    KafkaConnectSchemaContainer cacheKey = new KafkaConnectSchemaContainer(schema);
+    KafkaConnectSchemaWrapper cacheKey = new KafkaConnectSchemaWrapper(schema);
     org.apache.avro.Schema cached = fromConnectSchemaCache.get(cacheKey);
 
     if (cached == null && !AVRO_TYPE_UNION.equals(schema.name()) && !schema.isOptional()) {
@@ -1162,7 +1162,7 @@ public class AvroData {
     // conversions take extra flags (like forceOptional) which means the resulting schema might not
     // exactly match the Avro schema.
 
-    AvroSchemaContainer cacheKey = new AvroSchemaContainer(schema);
+    AvroSchemaWrapper cacheKey = new AvroSchemaWrapper(schema);
     Schema cachedSchema = toConnectSchemaCache.get(cacheKey);
     if (cachedSchema != null) {
       return cachedSchema;
