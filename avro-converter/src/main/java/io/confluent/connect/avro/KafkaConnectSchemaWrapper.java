@@ -21,7 +21,7 @@ public class KafkaConnectSchemaWrapper {
 
         KafkaConnectSchemaWrapper that = (KafkaConnectSchemaWrapper) o;
 
-        String name1 = schema.name();
+        /*String name1 = schema.name();
         String name2 = that.schema.name();
         Integer version1 = schema.version();
         Integer version2 = that.schema.version();
@@ -29,7 +29,7 @@ public class KafkaConnectSchemaWrapper {
         if (name1 != null && name2 != null && version1 != null && version2 != null) {
             // HACK: two schemas are identical when their name and version equal.
             return Objects.equals(schema.name(), that.schema.name()) && Objects.equals(schema.version(), that.schema.version());
-        }
+        }*/
 
         return schema.equals(that.schema);
     }
