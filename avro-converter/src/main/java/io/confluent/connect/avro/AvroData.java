@@ -865,8 +865,10 @@ public class AvroData {
             return JsonNodeFactory.instance.binaryNode(((ByteBuffer) defaultVal).array());
         case ARRAY: {
           ArrayNode array = JsonNodeFactory.instance.arrayNode();
-          for (Object elem : (List<Object>) defaultVal) {
-            array.add(defaultValueFromConnect(schema.valueSchema(), elem));
+          if (defaultVal != null) {
+            for (Object elem : (List<Object>) defaultVal) {
+              array.add(defaultValueFromConnect(schema.valueSchema(), elem));
+            }
           }
           return array;
         }
